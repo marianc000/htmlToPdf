@@ -1,0 +1,47 @@
+<html>
+
+<body>
+    <div id="container">
+        <!-- Populated by JS (below) or by prerendering (server). Either way,
+         #container gets populated with the posts markup:
+      <ul id="posts">...</ul>
+    -->
+    </div>
+</body>
+<script>
+    function renderPosts(posts, container) {
+        const html = posts.reduce((html, post) => {
+            return `${html}
+      <li class="post">
+        <h2>${post.title}</h2>
+        <div class="summary">${post.summary}</div>
+        <p>${post.content}</p>
+      </li>`;
+        }, '');
+
+        // CAREFUL: assumes html is sanitized.
+        container.innerHTML = `<ul id="posts">${html}</ul>`;
+    }
+
+    (async () => {
+        const params = new URL(location.href).searchParams;
+
+        const RENDERING_IN_HEADLESS = params.has('headless');
+        if (RENDERING_IN_HEADLESS) {
+            // Being rendered by headless Chrome on the server.
+            // e.g. shut off features, don't lazy load non-essential resources, etc.
+        }
+
+        const container = document.querySelector('#container');
+
+        // Posts markup is already in DOM if we're seeing a SSR'd.
+        // Don't re-hydrate the posts here on the client.
+        const PRE_RENDERED = container.querySelector('#posts');
+        if (!PRE_RENDERED) {
+            //  const posts = await fetch('/posts').then(resp => resp.json());
+            renderPosts(posts, container);
+        }
+    })();
+</script>
+
+</html>
