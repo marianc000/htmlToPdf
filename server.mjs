@@ -16,7 +16,7 @@ const port = 3000;
 
 async function serveRequest(req, res, next) {
   if (!browserWSEndpoint) {
-    const browser = await puppeteer.launch();
+    const browser = await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']});
     browserWSEndpoint = await browser.wsEndpoint();
   }
 

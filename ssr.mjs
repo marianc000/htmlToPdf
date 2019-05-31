@@ -3,8 +3,8 @@ const puppeteer = require('puppeteer');
 //import urlModule from 'url';
 const urlModule = require('url');
 const URL = urlModule.URL;
-
-
+const dateFormat = require('dateformat');
+console.log("dateFormat=" + dateFormat);
 async function ssr(url, browserWSEndpoint, reqBody) {
     console.log("cohorts=" + reqBody.cohorts);
     //console.log("html="+reqBody.html);
@@ -53,15 +53,15 @@ async function ssr(url, browserWSEndpoint, reqBody) {
         throw new Error('page.goto/waitForSelector timed out.');
     }
 
-    await page.evaluate((reqBody) => {
-        setValues(reqBody);
-    }, reqBody);
+    await page.evaluate((reqBody,dateStr) => {
+        setValues(reqBody, dateStr);
+    }, reqBody,dateFormat(new Date(), "mmmm d, yyyy"));
     //  const html = await page.content(); // serialized HTML of page DOM.
     //await page.emulateMedia('screen');
-    const pdf = await page.pdf({ 
+    const pdf = await page.pdf({
         format: 'A4',
         printBackground: true
-     });
+    });
 
 
     // await browser.close();
