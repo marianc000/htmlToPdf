@@ -5,15 +5,18 @@ const urlModule = require('url');
 const URL = urlModule.URL;
 
 
-async function ssr(url, browserWSEndpoint,reqBody) {
-console.log("cohorts="+reqBody.cohorts);
-//console.log("html="+reqBody.html);
+async function ssr(url, browserWSEndpoint, reqBody) {
+    console.log("cohorts=" + reqBody.cohorts);
+    //console.log("html="+reqBody.html);
 
     const start = Date.now();
 
-    console.info('Connecting to existing Chrome instance.'+browserWSEndpoint);
+    console.info('Connecting to existing Chrome instance.' + browserWSEndpoint);
     const browser = await puppeteer.connect({ browserWSEndpoint });
     const page = await browser.newPage();
+    // print console
+    page.on('console', msg => console.log(msg.text()));
+    await page.setCacheEnabled(false);
 
     // // 1. Intercept network requests.
     // await page.setRequestInterception(true);
@@ -49,19 +52,19 @@ console.log("cohorts="+reqBody.cohorts);
         console.error(err);
         throw new Error('page.goto/waitForSelector timed out.');
     }
+
     await page.evaluate((reqBody) => {
-        let dom = document.querySelector('.copyToDownload');
-        dom.innerHTML = reqBody.html;
-        adjustSvgSize();
-        console.log("cohorts2="+reqBody.cohorts);
-        setTableValues(reqBody.cohorts);
-     },reqBody);
- 
+        setValues(reqBody);
+    }, reqBody);
     //  const html = await page.content(); // serialized HTML of page DOM.
-    const pdf = await page.pdf({ format: 'A4' });
+    //await page.emulateMedia('screen');
+    const pdf = await page.pdf({ 
+        format: 'A4',
+        printBackground: true
+     });
 
 
-   // await browser.close();
+    // await browser.close();
 
     const ttRenderMs = Date.now() - start;
     console.info(`Headless rendered page in: ${ttRenderMs}ms`);
